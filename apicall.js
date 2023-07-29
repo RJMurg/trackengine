@@ -15,7 +15,7 @@ module.exports = {
     getTrains: async () =>{
         const response = await axios.get(APIBase + "getCurrentTrainsXML");
         const data = parser.parseXML(response.data);
-        const trains = parser.parseTrains(data.ArrayOfObjTrainPositions);
+        const trains = parser.parseTrains(data.ArrayOfObjTrainPositions.objTrainPositions);
         return trains;
     },
 

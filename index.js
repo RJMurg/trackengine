@@ -23,6 +23,29 @@ app.get('/status', (req, res) => {
     res.status(200).json({ message: 'ok', status: 200, timestamp: currentTime, delay: externalDelay + 'ms' });
 });
 
+app.post('/network', (req, res) => {
+    // Return the following:
+    // 1. Amount of stations
+    // 2. Amount of trains
+    // 3. Average delay of all trains
+
+    var stations = api.getStations();
+    var trains = api.getTrains();
+
+    var stationCount = stations.length;
+    var trainCount = trains.length;
+
+    var totalDelay = 0;
+    for(var i = 0; i < trains.length; i++){
+        totalDelay += trains[i].delay;
+    }
+
+    var averageDelay = totalDelay / trains.length;
+
+    res.status(200).json({ stations: stationCount, trains: trainCount, averageDelay: averageDelay, status: 200 });
+
+});
+
 app.post('/stations', async (req, res) => {
     const stations = await api.getStations();
     res.status(200).json({ stations: stations, status: 200 });

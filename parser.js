@@ -41,28 +41,163 @@ module.exports = {
 
         let trainList = [];
         for (let train in trains) {
-            let rawPublicMessage = trains[train].PublicMessage._text;
-            let publicMessage = rawPublicMessage.split('\\n');
-            let departureTime = publicMessage[1].split(' - ')[0];
-            let origin = publicMessage[1].split(' - ')[1].split(' to ')[0];
-            let destination = publicMessage[1].split(' - ')[1].split(' to ')[1].split(' (')[0];
-            let delay = publicMessage[1].split(' - ')[1].split(' (')[1].split(' mins')[0];
-            let currentStatus = publicMessage[2];
-            let direction = trains[train].Direction._text;
+
             let latitude = trains[train].TrainLatitude._text;
             let longitude = trains[train].TrainLongitude._text;
+            let rawPublicMessage = trains[train].PublicMessage._text;
+            let direction = trains[train].Direction._text;
+            let trainCode = trains[train].TrainCode._text;
 
-            trainList.push({
-                latitude: latitude,
-                longitude: longitude,
-                publicMessage: rawPublicMessage,
-                departureTime: departureTime,
-                origin: origin,
-                destination: destination,
-                delay: delay,
-                currentStatus: currentStatus,
-                direction: direction
-            });
+            let origin = '';
+            let destination = '';
+            let delay = 0;
+            let currentStatus = '';
+            let departureTime = '';
+            let currentMessage = '';
+            let terminatedTime = '';
+            
+            switch(trains[train].TrainStatus._text){
+                case 'N':
+                    // Not running
+                    currentStatus = 'Not running';
+                    break;
+                case 'R':
+                    // Running
+                    currentStatus = 'Running';
+                    break;
+                case 'T':
+                    // Terminated
+                    currentStatus = 'Terminated';
+                    break;
+                default:
+                    // Unknown
+                    currentStatus = trains[train].TrainStatus._text;
+                    break;
+
+            };
+
+            // If the train is running, it will have a delay
+            if(currentStatus == 'Running'){
+                // The delay is in the public message
+                // The delay is in the format "P709\n11:05 - Dundalk to Dublin Connolly (0 mins late)\nDeparted Dundalk next stop Drogheda"
+
+                let publicMessage = rawPublicMessage.split('\\n');
+
+                departureTime = publicMessage[1].split(' - ')[0];
+
+                let originAndDestination = publicMessage[1].split(' - ')[1].split(' to ');
+
+                origin = originAndDestination[0];
+
+                let destinationAndDelay = originAndDestination[1].split('(');
+
+                destination = destinationAndDelay[0];
+
+                let delayString = destinationAndDelay[1].split(' mins late)');
+                delay = delayString[0];
+
+                currentMessage = publicMessage[2];
+            }
+            else if(currentStatus == 'Not running'){
+                // The train is not running, so it will have an origin and destination and expected departure time
+                // The public message is in the format "A213\nCork to Dublin Heuston\nExpected Departure 11:25"
+
+                let publicMessage = rawPublicMessage.split('\\n');
+
+                let originAndDestination = publicMessage[1].split(' to ');
+
+                origin = originAndDestination[0];
+                destination = originAndDestination[originAndDestination.length - 1];
+
+                let expectedDeparture = publicMessage[2].split(' ');
+                departureTime = expectedDeparture[expectedDeparture.length - 1];
+            }
+            else if(currentStatus == 'Terminated'){
+                // The train is terminated, it will have departure time, origin, destination, delay and when it was terminated
+                // The public message is in the format "E260\n10:33 - Dublin Connolly to Bray(8 mins late)\nTERMINATED Bray at 11:25"
+
+                let publicMessage = rawPublicMessage.split('\\n');
+
+                let departureTimeString = publicMessage[1].split(' - ');
+
+                departureTime = departureTimeString[0];
+
+                let originAndDestination = departureTimeString[1].split(' to ');
+
+                origin = originAndDestination[0];
+
+                let destinationAndDelay = originAndDestination[1].split('(');
+
+                destination = destinationAndDelay[0];
+
+                let delayString = destinationAndDelay[1].split(' mins late)');
+                delay = delayString[0];
+
+                let terminatedString = publicMessage[2].split(' ');
+                terminatedTime = terminatedString[terminatedString.length - 1];
+            }
+
+            // Conditional pushes depending on status
+            if(currentStatus == 'Running'){
+                trainList.push({
+                    trainCode: trainCode,
+                    direction: direction,
+                    currentStatus: currentStatus,
+                    origin: origin,
+                    destination: destination,
+                    departureTime: departureTime,
+                    delay: delay,
+                    currentMessage: currentMessage,
+                    latitude: latitude,
+                    longitude: longitude,
+                    publicMessage: rawPublicMessage
+                });
+            }
+            else if(currentStatus == 'Not running'){
+                trainList.push({
+                    trainCode: trainCode,
+                    direction: direction,
+                    currentStatus: currentStatus,
+                    origin: origin,
+                    destination: destination,
+                    departureTime: departureTime,
+                    latitude: latitude,
+                    longitude: longitude,
+                    publicMessage: rawPublicMessage
+                });
+            }
+            else if(currentStatus == 'Terminated'){
+                trainList.push({
+                    trainCode: trainCode,
+                    direction: direction,
+                    currentStatus: currentStatus,
+                    origin: origin,
+                    destination: destination,
+                    departureTime: departureTime,
+                    delay: delay,
+                    terminatedTime: terminatedTime,
+                    latitude: latitude,
+                    longitude: longitude,
+                    publicMessage: rawPublicMessage
+                });
+            }
+            else{ // In case an abnormal status is returned
+                trainList.push({
+                    trainCode: trainCode,
+                    direction: direction,
+                    currentStatus: currentStatus,
+                    origin: origin,
+                    destination: destination,
+                    departureTime: departureTime,
+                    delay: delay,
+                    terminatedTime: terminatedTime,
+                    currentMessage: currentMessage,
+                    latitude: latitude,
+                    longitude: longitude,
+                    publicMessage: rawPublicMessage
+                });
+            }
+
         }
 
         return trainList;
