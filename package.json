@@ -1,0 +1,16 @@
+{
+  "name": "tracksmith",
+  "version": "1.0.0",
+  "description": "A RESTful API for the Irish Rail API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "IrishTnT",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.4.0",
+    "express": "^4.18.2",
+    "xml-js": "^1.6.11"
+  }
+}
