@@ -1,4 +1,5 @@
 const convert = require('xml-js');
+const api = require('./apicall');
 
 module.exports = {
     parseXML: function(xml) {
@@ -42,8 +43,8 @@ module.exports = {
         let trainList = [];
         for (let train in trains) {
 
-            let latitude = trains[train].TrainLatitude._text;
-            let longitude = trains[train].TrainLongitude._text;
+            let latitude = parseFloat(trains[train].TrainLatitude._text);
+            let longitude = parseFloat(trains[train].TrainLongitude._text);
             let rawPublicMessage = trains[train].PublicMessage._text;
             let direction = trains[train].Direction._text;
             let trainCode = trains[train].TrainCode._text;
@@ -94,7 +95,7 @@ module.exports = {
                 destination = destinationAndDelay[0];
 
                 let delayString = destinationAndDelay[1].split(' mins late)');
-                delay = delayString[0];
+                delay = parseInt(delayString[0]);
 
                 currentMessage = publicMessage[2];
             }
@@ -131,7 +132,7 @@ module.exports = {
                 destination = destinationAndDelay[0];
 
                 let delayString = destinationAndDelay[1].split(' mins late)');
-                delay = delayString[0];
+                delay = parseInt(delayString[0]);
 
                 let terminatedString = publicMessage[2].split(' ');
                 terminatedTime = terminatedString[terminatedString.length - 1];
@@ -202,5 +203,153 @@ module.exports = {
 
         return trainList;
 
+    },
+
+    parseTrainsByStation: async function(trains) {
+
+        let trainList = [];
+
+        let stationName = "";
+
+        // If there is only one train, it will not be an array
+        try{
+            if(trains.length == undefined){
+                trains = [trains];
+            }
+        }
+        catch(error){
+            return {
+                stationName: null,
+                trains: []
+            };
+        }
+
+        try {
+            stationName = trains[0].Stationfullname._text;
+        } catch (error) {
+            return {
+                stationName: null,
+                trains: []
+            };
+        }
+
+        for (let train in trains){
+            let trainCode = trains[train].Traincode._text;
+            let origin = trains[train].Origin._text;
+            let destination = trains[train].Destination._text;
+            let originTime = trains[train].Origintime._text;
+            let destinationTime = trains[train].Destinationtime._text;
+            let status = trains[train].Status._text;
+            let dueIn = trains[train].Duein._text;
+            let late = trains[train].Late._text;
+            let expectedArrival = trains[train].Exparrival._text;
+            let expectedDeparture = trains[train].Expdepart._text;
+            let scheduledArrival = trains[train].Scharrival._text;
+            let scheduledDeparture = trains[train].Schdepart._text;
+            let direction = trains[train].Direction._text;
+            let trainType = trains[train].Traintype._text;
+            let locationType = '';
+
+            switch(trains[train].Locationtype._text){
+                case 'O':
+                    locationType = 'Origin';
+                    break;
+                case 'D':
+                    locationType = 'Destination';
+                    break;
+                case 'S':
+                    locationType = 'Stop';
+                    break;
+                default:
+                    locationType = trains[train].Locationtype._text;
+                    break;
+            }
+
+
+            let lastLocation = trains[train].Lastlocation._text;
+
+            // Conditional pushes depending on Location Type
+            if(locationType == 'Origin'){
+                trainList.push({
+                    trainCode: trainCode,
+                    origin: origin,
+                    destination: destination,
+                    originTime: originTime,
+                    destinationTime: destinationTime,
+                    status: status,
+                    dueIn: dueIn,
+                    late: late,
+                    expectedDeparture: expectedDeparture,
+                    scheduledDeparture: scheduledDeparture,
+                    direction: direction,
+                    trainType: trainType,
+                    locationType: locationType,
+                    lastLocation: lastLocation
+                });
+            }
+            else if(locationType == 'Destination'){
+                trainList.push({
+                    trainCode: trainCode,
+                    origin: origin,
+                    destination: destination,
+                    originTime: originTime,
+                    destinationTime: destinationTime,
+                    status: status,
+                    dueIn: dueIn,
+                    late: late,
+                    expectedArrival: expectedArrival,
+                    scheduledArrival: scheduledArrival,
+                    direction: direction,
+                    trainType: trainType,
+                    locationType: locationType,
+                    lastLocation: lastLocation
+                });
+            }
+            else if(locationType == 'Stop'){
+                trainList.push({
+                    trainCode: trainCode,
+                    origin: origin,
+                    destination: destination,
+                    originTime: originTime,
+                    destinationTime: destinationTime,
+                    status: status,
+                    dueIn: dueIn,
+                    late: late,
+                    expectedArrival: expectedArrival,
+                    expectedDeparture: expectedDeparture,
+                    scheduledArrival: scheduledArrival,
+                    scheduledDeparture: scheduledDeparture,
+                    direction: direction,
+                    trainType: trainType,
+                    locationType: locationType,
+                    lastLocation: lastLocation
+                });
+            }
+            else{ // In case an abnormal status is returned
+                trainList.push({
+                    trainCode: trainCode,
+                    origin: origin,
+                    destination: destination,
+                    originTime: originTime,
+                    destinationTime: destinationTime,
+                    status: status,
+                    dueIn: dueIn,
+                    late: late,
+                    expectedArrival: expectedArrival,
+                    expectedDeparture: expectedDeparture,
+                    scheduledArrival: scheduledArrival,
+                    scheduledDeparture: scheduledDeparture,
+                    direction: direction,
+                    trainType: trainType,
+                    locationType: locationType,
+                    lastLocation: lastLocation
+                });
+            }
+        }
+
+        return {
+            stationName: stationName,
+            trains: trainList
+        };
     }
 }

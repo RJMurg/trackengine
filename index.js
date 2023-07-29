@@ -7,6 +7,15 @@ const app = express();
 app.use(express.json());
 PORT = process.env.PORT || 3000;
 
+// Serve static files
+app.use(express.static('public'));
+
+// If someone goes to the root of the site, send them to index.html
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + 'index.html');
+});
+
+// API endpoints
 app.post('/status', (req, res) => {
     var start = Date.now();
     api.getStations();
@@ -24,11 +33,6 @@ app.post('/status', (req, res) => {
 });
 
 app.post('/network', async (req, res) => {
-    // Return the following:
-    // 1. Amount of stations
-    // 2. Amount of trains
-    // 3. Amount of running trains
-    // 3. Average delay of all trains
 
     var stations = await api.getStations();
     var trains = await api.getTrains();
@@ -62,9 +66,25 @@ app.post('/stations', async (req, res) => {
     res.status(200).json({ stations: stations, status: 200 });
 });
 
+app.post('/stations/:stationCode', async (req, res) => {
+    const station = await api.getStationData(req.params.stationCode);
+
+    if(station.stationName == null){
+        res.status(404).json({ message: 'Station not found', status: 404 });
+    }
+    else{
+        res.status(200).json({ station: station, status: 200 });
+    }
+});
+
 app.post('/trains', async (req, res) => {
     const trains = await api.getTrains();
     res.status(200).json({ trains: trains, status: 200 });
+});
+
+app.post('/trains/:stationCode', async (req, res) => {
+    // Not implemented
+    res.status(501).json({ message: 'Not implemented', status: 501 });
 });
 
 app.listen(PORT, () => {
