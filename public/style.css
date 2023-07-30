@@ -22,14 +22,14 @@ body {
 .title{
     font-family: 'IBM Plex Mono', monospace;
     font-weight: 700;
-    text-shadow: 5px 5px 5px 5px var(--grey-1);
+    text-shadow: 1px 1px 5px 1px var(--black);
 }
 
 .subtitle{
     font-family: 'IBM Plex Sans', sans-serif;
     font-weight: 300;
     font-style: italic;
-    text-shadow: 5px 5px 5px 5px var(--grey-1);
+    text-shadow: 1px 1px 5px 1px var(--black);
 }
 
 .large{
@@ -47,6 +47,21 @@ body {
 .nomargin{
     margin: 0;
     padding: 0;
+}
+
+.left{
+    text-align: left !important;
+    align-self: left !important;
+}
+
+.right{
+    text-align: right !important;
+    align-self: right !important;
+}
+
+.center{
+    text-align: center !important;
+    align-self: center !important;
 }
 
 div{
@@ -224,4 +239,62 @@ input[type=range]{
     background-color: var(--grey-2);
     color: var(--white);
     font-family: 'IBM Plex Mono', monospace;
+}
+
+ /* Style the tab */
+ .tab {
+    overflow: hidden;
+    border: 1px solid var(--grey-4);
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    background-color: inherit;
+  }
+  
+  /* Style the buttons that are used to open the tab content */
+  .tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+  }
+  
+  /* Change background color of buttons on hover */
+  .tab button:hover {
+    background-color: var(--grey-4);
+  }
+  
+  /* Create an active/current tablink class */
+  .tab button.active {
+    background-color: var(--grey-5);
+  }
+  
+  /* Style the tab content */
+  .tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid var(--grey-4);
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+    border-top: none;
+}
+
+code{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1rem;
+    background-color: var(--grey-3);
+    color: var(--white);
+    width: fit-content;
+    border-radius: 0.5rem;
+}
+
+.codeblock{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1rem;
+    background-color: var(--grey-3);
+    color: var(--white);
+    width: fit-content;
+    border-radius: 0.5rem;
 }

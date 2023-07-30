@@ -16,7 +16,66 @@ app.get('/', (req, res) => {
 });
 
 // API endpoints
-app.post('/status', (req, res) => {
+
+// STATION endpoints
+app.post('/stations', async (req, res) => {
+    const stations = await api.getStations();
+    res.status(200).json({ stations: stations, status: 200 });
+});
+
+app.post('/stations/code/:stationCode', async (req, res) => {
+    const station = await api.getStationData(req.params.stationCode);
+
+    if(station.stationName == null){
+        res.status(404).json({ message: 'Station not found', status: 404 });
+    }
+    else{
+        res.status(200).json({ station: station, status: 200 });
+    }
+});
+
+app.post('/stations/name/:stationName', async (req, res) => {
+    // Not implemented
+    res.status(501).json({ message: 'Not implemented', status: 501 });
+});
+
+app.post('/stations/type/:stationType', async (req, res) => {
+    // Not implemented
+    res.status(501).json({ message: 'Not implemented', status: 501 });
+});
+
+app.post('/stations/info/:stationCode', async (req, res) => {
+    // Not implemented
+    res.status(501).json({ message: 'Not implemented', status: 501 });
+});
+
+// TRAIN endpoints
+app.post('/trains', async (req, res) => {
+    const trains = await api.getTrains();
+    res.status(200).json({ trains: trains, status: 200 });
+});
+
+app.post('/trains/id/:id', async (req, res) => {
+    // Not implemented
+    res.status(501).json({ message: 'Not implemented', status: 501 });
+});
+
+app.post('/trains/type/:type', async (req, res) => {
+    // Not implemented
+    res.status(501).json({ message: 'Not implemented', status: 501 });
+});
+
+app.post('/trains/route/:route', async (req, res) => {
+    // Not implemented
+    res.status(501).json({ message: 'Not implemented', status: 501 });
+});
+
+app.listen(PORT, () => {
+    console.log(`Listening on port ${PORT}`);
+});
+
+// OTHER endpoints
+app.post('other/status', (req, res) => {
     var start = Date.now();
     api.getStations();
     var end = Date.now();
@@ -32,7 +91,7 @@ app.post('/status', (req, res) => {
     res.status(200).json({ message: 'ok', status: 200, timestamp: currentTime, delay: externalDelay + 'ms' });
 });
 
-app.post('/network', async (req, res) => {
+app.post('other/network', async (req, res) => {
 
     var stations = await api.getStations();
     var trains = await api.getTrains();
@@ -59,34 +118,4 @@ app.post('/network', async (req, res) => {
 
     res.status(200).json({ stations: stationCount, trains: allTrainCount, running: runningTrainCount, averageDelay: averageDelay, status: 200 });
 
-});
-
-app.post('/stations', async (req, res) => {
-    const stations = await api.getStations();
-    res.status(200).json({ stations: stations, status: 200 });
-});
-
-app.post('/stations/:stationCode', async (req, res) => {
-    const station = await api.getStationData(req.params.stationCode);
-
-    if(station.stationName == null){
-        res.status(404).json({ message: 'Station not found', status: 404 });
-    }
-    else{
-        res.status(200).json({ station: station, status: 200 });
-    }
-});
-
-app.post('/trains', async (req, res) => {
-    const trains = await api.getTrains();
-    res.status(200).json({ trains: trains, status: 200 });
-});
-
-app.post('/trains/:stationCode', async (req, res) => {
-    // Not implemented
-    res.status(501).json({ message: 'Not implemented', status: 501 });
-});
-
-app.listen(PORT, () => {
-    console.log(`Listening on port ${PORT}`);
 });
