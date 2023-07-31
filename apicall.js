@@ -12,10 +12,18 @@ module.exports = {
         return stations;
     },
 
-    getStationData: async (stationCode) =>{
+    getStationCode: async (stationCode) =>{
         const response = await axios.get(APIBase + "getStationDataByCodeXML?StationCode=" + stationCode);
         const data = parser.parseXML(response.data);
         const trains = parser.parseTrainsByStation(data.ArrayOfObjStationData.objStationData);
+        return trains;
+    },
+
+    getStationName: async (stationName) =>{
+        const response = await axios.get(APIBase + "getStationDataByNameXML?StationDesc=" + stationName);
+        const data = parser.parseXML(response.data);
+        const trains = parser.parseTrainsByStation(data.ArrayOfObjStationData.objStationData);
+
         return trains;
     },
 

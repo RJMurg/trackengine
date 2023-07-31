@@ -19,24 +19,40 @@ app.get('/', (req, res) => {
 
 // STATION endpoints
 app.post('/stations', async (req, res) => {
-    const stations = await api.getStations();
-    res.status(200).json({ stations: stations, status: 200 });
+    try{
+        const stations = await api.getStations();
+        res.status(200).json({ stations: stations, status: 200 });
+    }
+    catch(err){
+        res.status(500).json({ message: 'Internal server error', status: 500 });
+    }
 });
 
 app.post('/stations/code/:stationCode', async (req, res) => {
-    const station = await api.getStationData(req.params.stationCode);
+    try{
+        const station = await api.getStationCode(req.params.stationCode);
 
-    if(station.stationName == null){
-        res.status(404).json({ message: 'Station not found', status: 404 });
+        if(station.stationName == null){
+            res.status(404).json({ message: 'Station not found', status: 404 });
+        }
+        else{
+            res.status(200).json({ station: station, status: 200 });
+        }
     }
-    else{
-        res.status(200).json({ station: station, status: 200 });
+    catch(err){
+        res.status(500).json({ message: 'Internal server error', status: 500 });
     }
 });
 
 app.post('/stations/name/:stationName', async (req, res) => {
-    // Not implemented
-    res.status(501).json({ message: 'Not implemented', status: 501 });
+
+    try{
+        const station = await api.getStationName(req.params.stationName);
+        res.status(200).json({ station: station, status: 200 });
+    }
+    catch(err){
+        res.status(500).json({ message: 'Internal server error', status: 500 });
+    }
 });
 
 app.post('/stations/type/:stationType', async (req, res) => {
@@ -51,8 +67,13 @@ app.post('/stations/info/:stationCode', async (req, res) => {
 
 // TRAIN endpoints
 app.post('/trains', async (req, res) => {
-    const trains = await api.getTrains();
-    res.status(200).json({ trains: trains, status: 200 });
+    try{
+        const trains = await api.getTrains();
+        res.status(200).json({ trains: trains, status: 200 });
+    }
+    catch(err){
+        res.status(500).json({ message: 'Internal server error', status: 500 });
+    }
 });
 
 app.post('/trains/id/:id', async (req, res) => {
@@ -76,46 +97,54 @@ app.listen(PORT, () => {
 
 // OTHER endpoints
 app.post('other/status', (req, res) => {
-    var start = Date.now();
-    api.getStations();
-    var end = Date.now();
-    var externalDelay = end - start;
+    try{
+        var start = Date.now();
+        api.getStations();
+        var end = Date.now();
+        var externalDelay = end - start;
 
-    var statusMessage = 'ok';
-    var currentTime = new Date();
+        var statusMessage = 'ok';
+        var currentTime = new Date();
 
-    if(externalDelay > 200){
-        statusMessage = 'slow';
+        if(externalDelay > 200){
+            statusMessage = 'slow';
+        }
+
+        res.status(200).json({ message: 'ok', status: 200, timestamp: currentTime, delay: externalDelay + 'ms' });
     }
-
-    res.status(200).json({ message: 'ok', status: 200, timestamp: currentTime, delay: externalDelay + 'ms' });
+    catch(err){
+        res.status(500).json({ message: 'Internal server error', status: 500 });
+    }
 });
 
 app.post('other/network', async (req, res) => {
+    try{
+        var stations = await api.getStations();
+        var trains = await api.getTrains();
 
-    var stations = await api.getStations();
-    var trains = await api.getTrains();
+        var stationCount = stations.length;
+        var allTrainCount = trains.length;
 
-    var stationCount = stations.length;
-    var allTrainCount = trains.length;
+        var runningTrainCount = 0;
 
-    var runningTrainCount = 0;
-
-    for(var i = 0; i < trains.length; i++){
-        if(trains[i].currentStatus == 'Running'){
-            runningTrainCount++;
+        for(var i = 0; i < trains.length; i++){
+            if(trains[i].currentStatus == 'Running'){
+                runningTrainCount++;
+            }
         }
-    }
 
-    var totalDelay = 0;
-    for(var i = 0; i < trains.length; i++){
-        if(trains[i].delay != null){
-            totalDelay += parseInt(trains[i].delay), 0;
+        var totalDelay = 0;
+        for(var i = 0; i < trains.length; i++){
+            if(trains[i].delay != null){
+                totalDelay += parseInt(trains[i].delay), 0;
+            }
         }
+
+        var averageDelay = Math.round(totalDelay / trains.length);
+
+        res.status(200).json({ stations: stationCount, trains: allTrainCount, running: runningTrainCount, averageDelay: averageDelay, status: 200 });
     }
-
-    var averageDelay = Math.round(totalDelay / trains.length);
-
-    res.status(200).json({ stations: stationCount, trains: allTrainCount, running: runningTrainCount, averageDelay: averageDelay, status: 200 });
-
+    catch(err){
+        res.status(500).json({ message: 'Internal server error', status: 500 });
+    }
 });

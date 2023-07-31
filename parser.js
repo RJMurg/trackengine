@@ -349,6 +349,7 @@ module.exports = {
 
         return {
             stationName: stationName,
+            stationCode: trains[0].Stationcode._text,
             trains: trainList
         };
     }
