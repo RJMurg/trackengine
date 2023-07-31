@@ -30,6 +30,7 @@ module.exports = {
             stationList.push({
                 name: station.StationDesc._text,
                 code: station.StationCode._text,
+                id: station.StationId._text,
                 latitude: station.StationLatitude._text,
                 longitude: station.StationLongitude._text
             });

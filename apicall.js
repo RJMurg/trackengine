@@ -12,6 +12,41 @@ module.exports = {
         return stations;
     },
 
+    getStationsType: async (stationType) =>{
+        switch(stationType.toLowerCase()){
+            case "main":
+            case "mainline":
+            case "m":
+                stationType = "M";
+                break;
+
+            case "suburban":
+            case "sub":
+            case "s":
+                stationType = "S";
+                break;
+
+            case "dart":
+            case "d":
+                stationType = "D";
+                break;
+
+            case "all":
+            case "a":
+                stationType = "A";
+                break;
+
+            default:
+                stationType = "A";
+                break;
+        }
+
+        const response = await axios.get(APIBase + "getAllStationsXML_WithStationType?StationType=" + stationType);
+        const data = parser.parseXML(response.data);
+        const stations = parser.parseStations(data.ArrayOfObjStation.objStation);
+        return stations;
+    },
+
     getStationCode: async (stationCode) =>{
         const response = await axios.get(APIBase + "getStationDataByCodeXML?StationCode=" + stationCode);
         const data = parser.parseXML(response.data);

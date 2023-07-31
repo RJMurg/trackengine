@@ -15,9 +15,14 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + 'index.html');
 });
 
+
+
 // API endpoints
 
+
 // STATION endpoints
+
+// Endpoints which return stations
 app.post('/stations', async (req, res) => {
     try{
         const stations = await api.getStations();
@@ -28,6 +33,19 @@ app.post('/stations', async (req, res) => {
     }
 });
 
+app.post('/stations/type/:stationType', async (req, res) => {
+
+    try{
+        const stations = await api.getStationsType(req.params.stationType);
+        res.status(200).json({ stations: stations, status: 200 });
+    }
+    catch(err){
+        res.status(500).json({ message: 'Internal server error', status: 500 });
+        console.log(err)
+    }
+});
+
+// Endpoints which return trains
 app.post('/stations/code/:stationCode', async (req, res) => {
     try{
         const station = await api.getStationCode(req.params.stationCode);
@@ -48,22 +66,24 @@ app.post('/stations/name/:stationName', async (req, res) => {
 
     try{
         const station = await api.getStationName(req.params.stationName);
-        res.status(200).json({ station: station, status: 200 });
+
+        if(station.stationName == null){
+            res.status(404).json({ message: 'Station not found', status: 404 });
+        }
+        else{
+            res.status(200).json({ station: station, status: 200 });
+        }
     }
     catch(err){
         res.status(500).json({ message: 'Internal server error', status: 500 });
     }
 });
 
-app.post('/stations/type/:stationType', async (req, res) => {
-    // Not implemented
-    res.status(501).json({ message: 'Not implemented', status: 501 });
-});
-
 app.post('/stations/info/:stationCode', async (req, res) => {
     // Not implemented
     res.status(501).json({ message: 'Not implemented', status: 501 });
 });
+
 
 // TRAIN endpoints
 app.post('/trains', async (req, res) => {
@@ -91,9 +111,7 @@ app.post('/trains/route/:route', async (req, res) => {
     res.status(501).json({ message: 'Not implemented', status: 501 });
 });
 
-app.listen(PORT, () => {
-    console.log(`Listening on port ${PORT}`);
-});
+
 
 // OTHER endpoints
 app.post('other/status', (req, res) => {
@@ -147,4 +165,9 @@ app.post('other/network', async (req, res) => {
     catch(err){
         res.status(500).json({ message: 'Internal server error', status: 500 });
     }
+});
+
+
+app.listen(PORT, () => {
+    console.log(`Listening on port ${PORT}`);
 });
