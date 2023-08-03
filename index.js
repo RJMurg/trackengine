@@ -177,7 +177,7 @@ app.post('/trains/route/:route', async (req, res) => {
 app.post('/other/status', async (req, res) => {
     try{
         var start = Date.now();
-        await api.getStations();
+        await api.getTrainHistory('A215', '03-08-2023', 'stops');
         var end = Date.now();
         var externalDelay = end - start;
 

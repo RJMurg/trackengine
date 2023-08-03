@@ -358,6 +358,17 @@ module.exports = {
     parseTrainHistory: function(train, include) {
 
         let trainHistory = [];
+        let currentIndex = 0;
+        
+        for (let stop in train) {
+            let stopType = train[stop].StopType._text;
+
+            if(stopType == 'C'){
+                currentIndex = parseInt(train[stop].LocationOrder._text);
+                break;
+            }
+        }
+
 
         for (let stop in train) {
             let locationCode = train[stop].LocationCode._text;
@@ -403,58 +414,25 @@ module.exports = {
             // Parse stopType
             switch (stopType) {
                 case '-':
-                    // This can either mean a past top or a future stop,
-                    // We can derive which one this is by seeing if 'C' or 'N' are in previous or future stops
-                    // If they are, then this is a past stop, otherwise it is a future stop
-                    // It should check if the next element is a timing point, and if it is, then mark as 'Timing Point'
-
-                    // Check if the next element is a timing point
-                    try{
-                        // This will error if it is the last element, so we need to catch that
-                        try{
-                            if (train[parseInt(stop) + 1].StopType._text == 'T') {
-                                stopType = 'Timing Point';
-                            }
-                            else {
-                                // Check if the next element is a current stop
-                                if (train[parseInt(stop) + 1].StopType._text == 'C') {
-                                    stopType = 'Past';
-                                }
-                                else {
-                                    // Check if the previous element is a current stop
-                                    // This will error if it is the first element, so we need to catch that
-                                    try{
-                                        if (train[parseInt(stop) - 1].StopType._text == 'C') {
-                                            stopType = 'Future';
-                                        }
-                                        else {
-                                            // Check if the previous element is a next stop
-                                            if (train[parseInt(stop) - 1].StopType._text == 'N') {
-                                                stopType = 'Future';
-                                            }
-                                            else {
-                                                stopType = 'Past';
-                                            }
-                                        }
-                                    }
-                                    catch(error){
-                                        stopType = 'Past';
-                                    }
-                                }
-                            }
-                        }
-                        catch(error){
-                            stopType = 'Future';
-                        }
+                    if(locationOrder == 1){
+                        stopType = 'Origin';
                     }
-                    catch(error){
-                        stopType = 'Unknown';
+                    else if(locationOrder == train.length){
+                        stopType = 'Destination';
+                    }
+                    else if(locationOrder > currentIndex){
+                        stopType = 'Future';
+                    }
+                    else if(locationOrder < currentIndex){
+                        stopType = 'Past';
                     }
 
                     break;
+
                 case 'C':
                     stopType = 'Current';
                     break;
+
                 case 'N':
                     stopType = 'Next';
                     break;
@@ -463,23 +441,163 @@ module.exports = {
                     break;
             }
 
-            trainHistory.push({
-                locationCode: locationCode,
-                locationFullName: locationFullName,
-                locationOrder: locationOrder,
-                locationType: locationType,
-                trainOrigin: trainOrigin,
-                trainDestination: trainDestination,
-                scheduledArrival: scheduledArrival,
-                scheduledDeparture: scheduledDeparture,
-                expectedArrival: expectedArrival,
-                expectedDeparture: expectedDeparture,
-                arrival: arrival,
-                departure: departure,
-                autoArrival: autoArrival,
-                autoDepart: autoDepart,
-                stopType: stopType
-            });
+            switch (locationType) {
+                case 'Origin':
+                    trainHistory.push({
+                        locationCode: locationCode,
+                        locationFullName: locationFullName,
+                        locationOrder: locationOrder,
+                        locationType: locationType,
+                        trainOrigin: trainOrigin,
+                        trainDestination: trainDestination,
+                        scheduledDeparture: scheduledDeparture,
+                        expectedDeparture: expectedDeparture,
+                        departure: departure,
+                        autoDepart: autoDepart,
+                        stopType: stopType
+                    });
+                    break;
+
+                case 'Destination':
+                    trainHistory.push({
+                        locationCode: locationCode,
+                        locationFullName: locationFullName,
+                        locationOrder: locationOrder,
+                        locationType: locationType,
+                        trainOrigin: trainOrigin,
+                        trainDestination: trainDestination,
+                        scheduledArrival: scheduledArrival,
+                        expectedArrival: expectedArrival,
+                        arrival: arrival,
+                        autoArrival: autoArrival,
+                        stopType: stopType
+                    });
+                    break;
+
+                case 'Stop':
+
+                    if(stopType == 'Past'){
+                        trainHistory.push({
+                            locationCode: locationCode,
+                            locationFullName: locationFullName,
+                            locationOrder: locationOrder,
+                            locationType: locationType,
+                            trainOrigin: trainOrigin,
+                            trainDestination: trainDestination,
+                            scheduledArrival: scheduledArrival,
+                            scheduledDeparture: scheduledDeparture,
+                            expectedArrival: expectedArrival,
+                            expectedDeparture: expectedDeparture,
+                            arrival: arrival,
+                            departure: departure,
+                            autoArrival: autoArrival,
+                            autoDepart: autoDepart,
+                            stopType: stopType
+                        });
+                    }
+                    else if(stopType == 'Current'){
+                        trainHistory.push({
+                            locationCode: locationCode,
+                            locationFullName: locationFullName,
+                            locationOrder: locationOrder,
+                            locationType: locationType,
+                            trainOrigin: trainOrigin,
+                            trainDestination: trainDestination,
+                            scheduledArrival: scheduledArrival,
+                            scheduledDeparture: scheduledDeparture,
+                            expectedArrival: expectedArrival,
+                            expectedDeparture: expectedDeparture,
+                            arrival: arrival,
+                            autoArrival: autoArrival,
+                            stopType: stopType
+                        });
+                    }
+                    else if(stopType == 'Next'){
+                        trainHistory.push({
+                            locationCode: locationCode,
+                            locationFullName: locationFullName,
+                            locationOrder: locationOrder,
+                            locationType: locationType,
+                            trainOrigin: trainOrigin,
+                            trainDestination: trainDestination,
+                            scheduledArrival: scheduledArrival,
+                            scheduledDeparture: scheduledDeparture,
+                            expectedArrival: expectedArrival,
+                            expectedDeparture: expectedDeparture,
+                            stopType: stopType
+                        });
+                    }
+                    else if(stopType == 'Future'){
+                        trainHistory.push({
+                            locationCode: locationCode,
+                            locationFullName: locationFullName,
+                            locationOrder: locationOrder,
+                            locationType: locationType,
+                            trainOrigin: trainOrigin,
+                            trainDestination: trainDestination,
+                            scheduledArrival: scheduledArrival,
+                            scheduledDeparture: scheduledDeparture,
+                            expectedArrival: expectedArrival,
+                            expectedDeparture: expectedDeparture,
+                            stopType: stopType
+                        });
+                    }
+                    else{
+                        trainHistory.push({
+                            locationCode: locationCode,
+                            locationFullName: locationFullName,
+                            locationOrder: locationOrder,
+                            locationType: locationType,
+                            trainOrigin: trainOrigin,
+                            trainDestination: trainDestination,
+                            scheduledArrival: scheduledArrival,
+                            scheduledDeparture: scheduledDeparture,
+                            expectedArrival: expectedArrival,
+                            expectedDeparture: expectedDeparture,
+                            arrival: arrival,
+                            departure: departure,
+                            autoArrival: autoArrival,
+                            autoDepart: autoDepart,
+                            stopType: stopType
+                        });
+                    }
+                    break;
+
+                case 'Timing Point':
+                    trainHistory.push({
+                        locationCode: locationCode,
+                        locationFullName: locationFullName,
+                        locationOrder: locationOrder,
+                        locationType: locationType,
+                        trainOrigin: trainOrigin,
+                        trainDestination: trainDestination,
+                        scheduledArrival: scheduledArrival,
+                        expectedArrival: expectedArrival,
+                        stopType: stopType
+                    });
+                    break;
+
+                default:
+                trainHistory.push({
+                    locationCode: locationCode,
+                    locationFullName: locationFullName,
+                    locationOrder: locationOrder,
+                    locationType: locationType,
+                    trainOrigin: trainOrigin,
+                    trainDestination: trainDestination,
+                    scheduledArrival: scheduledArrival,
+                    scheduledDeparture: scheduledDeparture,
+                    expectedArrival: expectedArrival,
+                    expectedDeparture: expectedDeparture,
+                    arrival: arrival,
+                    departure: departure,
+                    autoArrival: autoArrival,
+                    autoDepart: autoDepart,
+                    stopType: stopType
+                });
+                break;
+            }
+
         }
 
         return trainHistory;
