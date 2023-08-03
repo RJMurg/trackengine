@@ -151,6 +151,23 @@ app.post('/trains/route', async (req, res) => {
     res.status(200).json({ routes: routes, status: 200 });
 });
 
+app.post('/trains/history/:id/:date/:type?' , async (req, res) => {
+    try{
+        train = await api.getTrainHistory(req.params.id, req.params.date, req.params.type);
+
+        if(train == 'Train not found'){
+            res.status(404).json({ message: 'Train not found', status: 404 });
+        }
+        else{
+            res.status(200).json({ train: train, status: 200 });
+        }
+    }
+    catch(err){
+        res.status(500).json({ message: 'Internal server error', status: 500 });
+        console.log(err)
+    }
+});
+
 app.post('/trains/route/:route', async (req, res) => {
     // Not implemented
     res.status(501).json({ message: 'Not implemented', status: 501 });

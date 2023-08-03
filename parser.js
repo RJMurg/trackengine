@@ -353,5 +353,135 @@ module.exports = {
             stationCode: trains[0].Stationcode._text,
             trains: trainList
         };
+    },
+
+    parseTrainHistory: function(train, include) {
+
+        let trainHistory = [];
+
+        for (let stop in train) {
+            let locationCode = train[stop].LocationCode._text;
+            let locationFullName = train[stop].LocationFullName._text;
+            let locationOrder = train[stop].LocationOrder._text;
+            let locationType = train[stop].LocationType._text;
+            let trainOrigin = train[stop].TrainOrigin._text;
+            let trainDestination = train[stop].TrainDestination._text;
+            let scheduledArrival = train[stop].ScheduledArrival._text;
+            let scheduledDeparture = train[stop].ScheduledDeparture._text;
+            let expectedArrival = train[stop].ExpectedArrival._text;
+            let expectedDeparture = train[stop].ExpectedDeparture._text;
+            let arrival = train[stop].Arrival._text;
+            let departure = train[stop].Departure._text;
+            let autoArrival = train[stop].AutoArrival._text;
+            let autoDepart = train[stop].AutoDepart._text;
+            let stopType = train[stop].StopType._text;
+
+            // Parse locationType
+            switch (locationType) {
+                case 'O':
+                    locationType = 'Origin';
+                    break;
+                case 'D':
+                    locationType = 'Destination';
+                    break;
+                case 'S':
+                    locationType = 'Stop';
+                    break;
+                case 'T':
+                    if(include){
+                        locationType = 'Timing Point';
+                    }
+                    else{
+                        continue;
+                    }
+                    break;
+                default:
+                    locationType = locationType;
+                    break;
+            }
+
+            // Parse stopType
+            switch (stopType) {
+                case '-':
+                    // This can either mean a past top or a future stop,
+                    // We can derive which one this is by seeing if 'C' or 'N' are in previous or future stops
+                    // If they are, then this is a past stop, otherwise it is a future stop
+                    // It should check if the next element is a timing point, and if it is, then mark as 'Timing Point'
+
+                    // Check if the next element is a timing point
+                    try{
+                        // This will error if it is the last element, so we need to catch that
+                        try{
+                            if (train[parseInt(stop) + 1].StopType._text == 'T') {
+                                stopType = 'Timing Point';
+                            }
+                            else {
+                                // Check if the next element is a current stop
+                                if (train[parseInt(stop) + 1].StopType._text == 'C') {
+                                    stopType = 'Past';
+                                }
+                                else {
+                                    // Check if the previous element is a current stop
+                                    // This will error if it is the first element, so we need to catch that
+                                    try{
+                                        if (train[parseInt(stop) - 1].StopType._text == 'C') {
+                                            stopType = 'Future';
+                                        }
+                                        else {
+                                            // Check if the previous element is a next stop
+                                            if (train[parseInt(stop) - 1].StopType._text == 'N') {
+                                                stopType = 'Future';
+                                            }
+                                            else {
+                                                stopType = 'Past';
+                                            }
+                                        }
+                                    }
+                                    catch(error){
+                                        stopType = 'Past';
+                                    }
+                                }
+                            }
+                        }
+                        catch(error){
+                            stopType = 'Future';
+                        }
+                    }
+                    catch(error){
+                        stopType = 'Unknown';
+                    }
+
+                    break;
+                case 'C':
+                    stopType = 'Current';
+                    break;
+                case 'N':
+                    stopType = 'Next';
+                    break;
+                default:
+                    stopType = stopType;
+                    break;
+            }
+
+            trainHistory.push({
+                locationCode: locationCode,
+                locationFullName: locationFullName,
+                locationOrder: locationOrder,
+                locationType: locationType,
+                trainOrigin: trainOrigin,
+                trainDestination: trainDestination,
+                scheduledArrival: scheduledArrival,
+                scheduledDeparture: scheduledDeparture,
+                expectedArrival: expectedArrival,
+                expectedDeparture: expectedDeparture,
+                arrival: arrival,
+                departure: departure,
+                autoArrival: autoArrival,
+                autoDepart: autoDepart,
+                stopType: stopType
+            });
+        }
+
+        return trainHistory;
     }
 }

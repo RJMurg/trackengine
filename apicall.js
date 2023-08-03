@@ -179,5 +179,35 @@ module.exports = {
         }
 
         return routes;
+    },
+
+    getTrainHistory: async (trainID, date, type) =>{
+        // Dates will arrive in the format of DD-MM-YYYY
+        // We need to convert it to "DD Mon YYYY" for the API
+        // I.e. 01-01-2020 -> 01 Jan 2020
+
+        const dateSplit = date.split('-');
+        const day = dateSplit[0];
+        const month = dateSplit[1];
+        const year = dateSplit[2];
+
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Dec"];
+
+        const newDate = day + " " + months[month - 1] + " " + year;
+
+        let include = false;
+
+        if(type == undefined || type.toLowerCase() == "all" || type.toLowerCase() == "a"){
+            include = true;
+        }
+        else if(type.toLowerCase() == "stops" || type.toLowerCase() == "s"){
+            include = false;
+        }
+
+        const response = await axios.get(APIBase + "getTrainMovementsXML?TrainId=" + trainID + "&TrainDate=" + newDate);
+        const data = parser.parseXML(response.data);
+        const train = parser.parseTrainHistory(data.ArrayOfObjTrainMovements.objTrainMovements, include);
+
+        return train;
     }
 }
