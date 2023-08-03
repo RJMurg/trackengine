@@ -10,13 +10,6 @@ PORT = process.env.PORT || 3000;
 // Serve static files
 app.use(express.static('public'));
 
-// If someone goes to the root of the site, send them to index.html
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + 'index.html');
-});
-
-
-
 // API endpoints
 
 
@@ -174,7 +167,7 @@ app.post('/other/status', async (req, res) => {
         var statusMessage = 'ok';
         var currentTime = new Date();
 
-        if(externalDelay > 200){
+        if(externalDelay > 200){ 
             statusMessage = 'slow';
         }
 
