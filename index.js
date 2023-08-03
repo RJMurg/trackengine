@@ -59,6 +59,17 @@ app.post('/stations/code/:stationCode/:time?', async (req, res) => {
     }
 });
 
+app.post('/stations/filter/:text' , async (req, res) => {
+    const stations = await api.getStationsFilter(req.params.text);
+
+    if(stations == 'No stations found'){
+        res.status(404).json({ message: 'No stations found', status: 404 });
+    }
+    else{
+        res.status(200).json({ stations: stations, status: 200 });
+    }
+});
+
 app.post('/stations/name/:stationName/:time?', async (req, res) => {
 
     try{

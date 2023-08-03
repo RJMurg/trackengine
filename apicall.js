@@ -22,6 +22,19 @@ module.exports = {
         return false;
     },
 
+    getStationsFilter: async (stationFilter) =>{
+        const response = await axios.get(APIBase + "getStationsFilterXML?StationText=" + stationFilter);
+        const data = parser.parseXML(response.data);
+
+        if(data.ArrayOfObjStationFilter.objStationFilter == undefined){
+            return 'No stations found';
+        }
+        
+        const stations = parser.parseStationsFilter(data.ArrayOfObjStationFilter.objStationFilter);
+
+        return stations;
+    },
+
     stationExistsName: async (stationName) =>{
         const stations = await module.exports.getStations();
         for(let i = 0; i < stations.length; i++){

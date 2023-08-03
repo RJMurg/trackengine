@@ -39,6 +39,50 @@ module.exports = {
         return stationList;
     },
 
+    parseStationsFilter: function(stations) {
+        // Sample input
+        /*
+        {
+        "StationDesc_sp": {
+            "_text": "Dublin&nbsp;Heuston"
+        },
+        "StationDesc": {
+            "_text": "Dublin Heuston"
+        },
+        "StationCode": {
+            "_text": "HSTON"
+        }
+        },
+        {
+        "StationDesc_sp": {
+            "_text": "Dublin&nbsp;Heuston"
+        },
+        "StationDesc": {
+            "_text": "Heuston"
+        },
+        "StationCode": {
+            "_text": "HSTON"
+        }
+        }
+        */
+
+        for (let station in stations) {
+            stations[station].StationDesc._text = stations[station].StationDesc._text.replace(/&nbsp;/g, ' ');
+            stations[station].StationCode._text = stations[station].StationCode._text.replace(/\s/g, '');
+        }
+
+        let stationList = [];
+
+        stations.forEach(station => {
+            stationList.push({
+                name: station.StationDesc._text,
+                code: station.StationCode._text
+            });
+        });
+
+        return stationList;
+    },
+
     parseTrains: function(trains) {
 
         let trainList = [];
