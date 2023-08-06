@@ -15,7 +15,7 @@ module.exports = {
     stationExistsCode: async (stationCode) =>{
         const stations = await module.exports.getStations();
         for(let i = 0; i < stations.length; i++){
-            if(stations[i].code.toLowerCase == stationCode.toLowerCase){
+            if(stations[i].code.toLowerCase() == stationCode.toLowerCase()){
                 return true;
             }
         }
@@ -217,7 +217,15 @@ module.exports = {
             include = false;
         }
 
-        const response = await axios.get(APIBase + "getTrainMovementsXML?TrainId=" + trainID + "&TrainDate=" + newDate);
+        const response = undefined;
+
+        try{
+            response = await axios.get(APIBase + "getTrainMovementsXML?TrainId=" + trainID + "&TrainDate=" + newDate);
+        }
+        catch(err){
+            return 'Train not found';
+        }
+
         const data = parser.parseXML(response.data);
         const train = parser.parseTrainHistory(data.ArrayOfObjTrainMovements.objTrainMovements, include);
 

@@ -1,11 +1,10 @@
 const express = require('express');
 const api = require('./apicall');
-const parser = require('./parser');
 
 // Express boilerplate
 const app = express();
 app.use(express.json());
-PORT = process.env.PORT || 3000;
+PORT = process.env.PORT || 3500;
 
 // Serve static files
 app.use(express.static('public'));
@@ -59,22 +58,10 @@ app.post('/stations/code/:stationCode/:time?', async (req, res) => {
     }
 });
 
-app.post('/stations/filter/:text' , async (req, res) => {
-    const stations = await api.getStationsFilter(req.params.text);
-
-    if(stations == 'No stations found'){
-        res.status(404).json({ message: 'No stations found', status: 404 });
-    }
-    else{
-        res.status(200).json({ stations: stations, status: 200 });
-    }
-});
-
 app.post('/stations/name/:stationName/:time?', async (req, res) => {
 
     try{
         const station = await api.getStationName(req.params.stationName, req.params.time); // 'undefined' if no time is specified, handled by the api call
-        console.log(station)
 
         if(station.stationName == null){
 
@@ -91,6 +78,17 @@ app.post('/stations/name/:stationName/:time?', async (req, res) => {
     }
     catch(err){
         res.status(500).json({ message: 'Internal server error', status: 500 });
+    }
+});
+
+app.post('/stations/filter/:text' , async (req, res) => {
+    const stations = await api.getStationsFilter(req.params.text);
+
+    if(stations == 'No stations found'){
+        res.status(404).json({ message: 'No stations found', status: 404 });
+    }
+    else{
+        res.status(200).json({ stations: stations, status: 200 });
     }
 });
 
@@ -156,7 +154,7 @@ app.post('/trains/type/:type', async (req, res) => {
     }
 });
 
-app.post('/trains/route', async (req, res) => {
+app.post('/trains/routes', async (req, res) => {
     const routes = await api.getRoutes();
 
     res.status(200).json({ routes: routes, status: 200 });
@@ -231,6 +229,7 @@ app.post('/other/network', async (req, res) => {
 
         var averageDelay = Math.round(totalDelay / trains.length);
 
+        console.log({ stations: stationCount, trains: allTrainCount, running: runningTrainCount, averageDelay: averageDelay, status: 200 })
         res.status(200).json({ stations: stationCount, trains: allTrainCount, running: runningTrainCount, averageDelay: averageDelay, status: 200 });
     }
     catch(err){

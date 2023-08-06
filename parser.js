@@ -1,5 +1,4 @@
 const convert = require('xml-js');
-const api = require('./apicall');
 
 module.exports = {
     parseXML: function(xml) {
@@ -40,31 +39,6 @@ module.exports = {
     },
 
     parseStationsFilter: function(stations) {
-        // Sample input
-        /*
-        {
-        "StationDesc_sp": {
-            "_text": "Dublin&nbsp;Heuston"
-        },
-        "StationDesc": {
-            "_text": "Dublin Heuston"
-        },
-        "StationCode": {
-            "_text": "HSTON"
-        }
-        },
-        {
-        "StationDesc_sp": {
-            "_text": "Dublin&nbsp;Heuston"
-        },
-        "StationDesc": {
-            "_text": "Heuston"
-        },
-        "StationCode": {
-            "_text": "HSTON"
-        }
-        }
-        */
 
         for (let station in stations) {
             stations[station].StationDesc._text = stations[station].StationDesc._text.replace(/&nbsp;/g, ' ');
@@ -75,8 +49,8 @@ module.exports = {
 
         stations.forEach(station => {
             stationList.push({
-                name: station.StationDesc._text,
-                code: station.StationCode._text
+                stationName: station.StationDesc._text,
+                stationCode: station.StationCode._text
             });
         });
 
@@ -191,11 +165,11 @@ module.exports = {
                     currentStatus: currentStatus,
                     origin: origin,
                     destination: destination,
-                    departureTime: departureTime,
-                    delay: delay,
+                    originTime: departureTime,
+                    late: delay.toString(),
                     currentMessage: currentMessage,
-                    latitude: latitude,
-                    longitude: longitude,
+                    latitude: latitude.toString(),
+                    longitude: longitude.toString(),
                     publicMessage: rawPublicMessage
                 });
             }
@@ -206,9 +180,9 @@ module.exports = {
                     currentStatus: currentStatus,
                     origin: origin,
                     destination: destination,
-                    departureTime: departureTime,
-                    latitude: latitude,
-                    longitude: longitude,
+                    originTime: departureTime,
+                    latitude: latitude.toString(),
+                    longitude: longitude.toString(),
                     publicMessage: rawPublicMessage
                 });
             }
@@ -219,11 +193,11 @@ module.exports = {
                     currentStatus: currentStatus,
                     origin: origin,
                     destination: destination,
-                    departureTime: departureTime,
-                    delay: delay,
-                    terminatedTime: terminatedTime,
-                    latitude: latitude,
-                    longitude: longitude,
+                    originTime: departureTime,
+                    destinationTime: terminatedTime,
+                    late: delay.toString(),
+                    latitude: latitude.toString(),
+                    longitude: longitude.toString(),
                     publicMessage: rawPublicMessage
                 });
             }
@@ -234,12 +208,12 @@ module.exports = {
                     currentStatus: currentStatus,
                     origin: origin,
                     destination: destination,
-                    departureTime: departureTime,
-                    delay: delay,
-                    terminatedTime: terminatedTime,
+                    originTime: departureTime,
+                    destinationTime: terminatedTime,
+                    late: delay.toString(),
                     currentMessage: currentMessage,
-                    latitude: latitude,
-                    longitude: longitude,
+                    latitude: latitudet.toString(),
+                    longitude: longitude.toString(),
                     publicMessage: rawPublicMessage
                 });
             }
@@ -329,7 +303,6 @@ module.exports = {
                     direction: direction,
                     trainType: trainType,
                     locationType: locationType,
-                    lastLocation: lastLocation
                 });
             }
             else if(locationType == 'Destination'){
@@ -403,6 +376,10 @@ module.exports = {
 
         let trainHistory = [];
         let currentIndex = 0;
+
+        if(train.length == undefined){
+            return 'Train not found';
+        }
         
         for (let stop in train) {
             let stopType = train[stop].StopType._text;
@@ -492,8 +469,8 @@ module.exports = {
                         locationFullName: locationFullName,
                         locationOrder: locationOrder,
                         locationType: locationType,
-                        trainOrigin: trainOrigin,
-                        trainDestination: trainDestination,
+                        origin: trainOrigin,
+                        destination: trainDestination,
                         scheduledDeparture: scheduledDeparture,
                         expectedDeparture: expectedDeparture,
                         departure: departure,
@@ -508,8 +485,8 @@ module.exports = {
                         locationFullName: locationFullName,
                         locationOrder: locationOrder,
                         locationType: locationType,
-                        trainOrigin: trainOrigin,
-                        trainDestination: trainDestination,
+                        origin: trainOrigin,
+                        destination: trainDestination,
                         scheduledArrival: scheduledArrival,
                         expectedArrival: expectedArrival,
                         arrival: arrival,
@@ -526,8 +503,8 @@ module.exports = {
                             locationFullName: locationFullName,
                             locationOrder: locationOrder,
                             locationType: locationType,
-                            trainOrigin: trainOrigin,
-                            trainDestination: trainDestination,
+                            origin: trainOrigin,
+                            destination: trainDestination,
                             scheduledArrival: scheduledArrival,
                             scheduledDeparture: scheduledDeparture,
                             expectedArrival: expectedArrival,
@@ -545,8 +522,8 @@ module.exports = {
                             locationFullName: locationFullName,
                             locationOrder: locationOrder,
                             locationType: locationType,
-                            trainOrigin: trainOrigin,
-                            trainDestination: trainDestination,
+                            origin: trainOrigin,
+                            destination: trainDestination,
                             scheduledArrival: scheduledArrival,
                             scheduledDeparture: scheduledDeparture,
                             expectedArrival: expectedArrival,
@@ -562,8 +539,8 @@ module.exports = {
                             locationFullName: locationFullName,
                             locationOrder: locationOrder,
                             locationType: locationType,
-                            trainOrigin: trainOrigin,
-                            trainDestination: trainDestination,
+                            origin: trainOrigin,
+                            destination: trainDestination,
                             scheduledArrival: scheduledArrival,
                             scheduledDeparture: scheduledDeparture,
                             expectedArrival: expectedArrival,
@@ -577,8 +554,8 @@ module.exports = {
                             locationFullName: locationFullName,
                             locationOrder: locationOrder,
                             locationType: locationType,
-                            trainOrigin: trainOrigin,
-                            trainDestination: trainDestination,
+                            origin: trainOrigin,
+                            destination: trainDestination,
                             scheduledArrival: scheduledArrival,
                             scheduledDeparture: scheduledDeparture,
                             expectedArrival: expectedArrival,
@@ -592,8 +569,8 @@ module.exports = {
                             locationFullName: locationFullName,
                             locationOrder: locationOrder,
                             locationType: locationType,
-                            trainOrigin: trainOrigin,
-                            trainDestination: trainDestination,
+                            origin: trainOrigin,
+                            destination: trainDestination,
                             scheduledArrival: scheduledArrival,
                             scheduledDeparture: scheduledDeparture,
                             expectedArrival: expectedArrival,
@@ -613,8 +590,8 @@ module.exports = {
                         locationFullName: locationFullName,
                         locationOrder: locationOrder,
                         locationType: locationType,
-                        trainOrigin: trainOrigin,
-                        trainDestination: trainDestination,
+                        origin: trainOrigin,
+                        destination: trainDestination,
                         scheduledArrival: scheduledArrival,
                         expectedArrival: expectedArrival,
                         stopType: stopType
@@ -627,8 +604,8 @@ module.exports = {
                     locationFullName: locationFullName,
                     locationOrder: locationOrder,
                     locationType: locationType,
-                    trainOrigin: trainOrigin,
-                    trainDestination: trainDestination,
+                    origin: trainOrigin,
+                    destination: trainDestination,
                     scheduledArrival: scheduledArrival,
                     scheduledDeparture: scheduledDeparture,
                     expectedArrival: expectedArrival,
