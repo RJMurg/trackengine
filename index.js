@@ -4,7 +4,7 @@ const api = require('./apicall');
 // Express boilerplate
 const app = express();
 app.use(express.json());
-PORT = process.env.PORT || 3500;
+PORT = process.env.PORT || 3555;
 
 // Serve static files
 app.use(express.static('public'));
