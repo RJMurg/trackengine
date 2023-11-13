@@ -222,10 +222,11 @@ app.post('/other/network', async (req, res) => {
 
         var totalDelay = 0;
         for(var i = 0; i < trains.length; i++){
-            if(trains[i].delay != null){
-                totalDelay += parseInt(trains[i].delay), 0;
+            if(trains[i].late != null){
+                totalDelay += parseInt(trains[i].late), 0;
             }
         }
+
 
         var averageDelay = Math.round(totalDelay / trains.length);
 
