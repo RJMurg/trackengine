@@ -1,0 +1,9 @@
+.git
+.github
+.gitignore
+node_modules
+.DS_Store
+Dockerfile
+README.md
+LICENSE.md
+tracksmith.png
