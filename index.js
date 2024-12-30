@@ -230,7 +230,6 @@ app.post('/other/network', async (req, res) => {
 
         var averageDelay = Math.round(totalDelay / trains.length);
 
-        console.log({ stations: stationCount, trains: allTrainCount, running: runningTrainCount, averageDelay: averageDelay, status: 200 })
         res.status(200).json({ stations: stationCount, trains: allTrainCount, running: runningTrainCount, averageDelay: averageDelay, status: 200 });
     }
     catch(err){
