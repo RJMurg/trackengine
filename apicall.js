@@ -204,7 +204,7 @@ module.exports = {
         const month = dateSplit[1];
         const year = dateSplit[2];
 
-        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Nov", "Dec"];
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         const newDate = day + " " + months[month - 1] + " " + year;
 
@@ -217,7 +217,7 @@ module.exports = {
             include = false;
         }
 
-        const response = undefined;
+        let response = undefined;
 
         try{
             response = await axios.get(APIBase + "getTrainMovementsXML?TrainId=" + trainID + "&TrainDate=" + newDate);
