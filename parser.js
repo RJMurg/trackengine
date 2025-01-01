@@ -377,7 +377,7 @@ module.exports = {
         let trainHistory = [];
         let currentIndex = 0;
 
-        if(train.length == undefined){
+        if(train == undefined){
             return 'Train not found';
         }
         
